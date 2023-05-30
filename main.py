@@ -1,86 +1,98 @@
 import heapq
 
-maze = [[0, 1, 0, 0, 0],
-        [0, 1, 0, 1, 0],
-        [0, 1, 0, 1, 0],
-        [0, 0, 0, 1, 0],
-        [0, 0, 0, 1, 0],
-        [0, 1, 0, 1, 0]]
+labirinto = [[0, 1, 0, 0, 0],
+             [0, 1, 0, 1, 0],
+             [0, 1, 0, 1, 0],
+             [0, 0, 0, 1, 0],
+             [0, 0, 0, 1, 0],
+             [0, 1, 0, 1, 0],
+             [0, 0, 0, 0, 0],
+             [0, 0, 0, 1, 0],
+             [0, 0, 0, 1, 0],
+             [0, 1, 0, 1, 0],
+             [0, 0, 0, 0, 0]]
 
-start = (0, 0)
-end = (4, 4)
+inicio = (0, 0)
+fim = (4, 4)
 
 
-class Node:
-    def __init__(self, position, parent=None):
-        self.position = position
-        self.parent = parent
+class No:
+    def __init__(self, posicao, pai=None):
+        self.posicao = posicao
+        self.pai = pai
         self.g = 0
         self.h = 0
         self.f = 0
 
     def __eq__(self, other):
-        return self.position == other.position
+        return self.posicao == other.posicao
 
     def __lt__(self, other):
         return self.f < other.f
 
 
-def astar(maze, start, end):
-    start_node = Node(start)
-    end_node = Node(end)
+def aestrela(labirinto, inicio, fim):
+    no_inicial = No(inicio)
+    no_final = No(fim)
 
-    open_list = []
-    closed_list = []
+    lista_aberta = []   # Lista de nós a serem explorados
+    lista_fechada = []  # Lista de nós já explorados
 
-    heapq.heappush(open_list, start_node)
+    heapq.heappush(lista_aberta, no_inicial)    # Adiciona o nó inicial na lista de nós abertos
 
-    while open_list:
-        current_node = heapq.heappop(open_list)
-        closed_list.append(current_node)
+    while lista_aberta:
+        no_atual = heapq.heappop(lista_aberta)  # Seleciona o nó de menor custo f da lista de nós abertos
+        lista_fechada.append(no_atual)  # Adiciona o nó atual na lista de nós explorados
 
-        if current_node == end_node:
-            path = []
-            while current_node != start_node:
-                path.append(current_node.position)
-                current_node = current_node.parent
-            return path[::-1]
+        if no_atual == no_final:    # Se chegou ao nó final, constrói e retorna o caminho percorrido
+            caminho = []
+            while no_atual != no_inicial:
+                caminho.append(no_atual.posicao)
+                no_atual = no_atual.pai
+            return caminho[::-1]
 
-        neighbors = [(0, -1), (0, 1), (-1, 0), (1, 0)]
-        for neighbor in neighbors:
-            neighbor_position = (current_node.position[0] + neighbor[0], current_node.position[1] + neighbor[1])
+        vizinhos = [(0, -1), (0, 1), (-1, 0), (1, 0)]   # Posições dos vizinhos: acima, abaixo, esquerda, direita
+        for vizinho in vizinhos:
+            vizinho_posicao = (no_atual.posicao[0] + vizinho[0], no_atual.posicao[1] + vizinho[1])
 
-            if neighbor_position[0] > (len(maze) - 1) or neighbor_position[0] < 0 or neighbor_position[1] > (len(maze[len(maze)-1]) - 1) or neighbor_position[1] < 0:
-                continue
+            if vizinho_posicao[0] > (len(labirinto) - 1) or vizinho_posicao[0] < 0 or vizinho_posicao[1] > (len(labirinto[len(labirinto)-1]) - 1) or vizinho_posicao[1] < 0:  # Verificando se o vizinho está fora do labirinto
+                continue    # Ignora vizinhos fora dos limites do labirinto
 
-            if maze[neighbor_position[0]][neighbor_position[1]] != 0:
-                continue
+            if labirinto[vizinho_posicao[0]][vizinho_posicao[1]] != 0:  # Se o vizinho é uma parede, pula para o próximo vizinho após a parede
+                vizinho_posicao = (vizinho_posicao[0] + vizinho[0], vizinho_posicao[1] + vizinho[1])
+                if vizinho_posicao[0] > (len(labirinto) - 1) or vizinho_posicao[0] < 0 or vizinho_posicao[1] > (len(labirinto[len(labirinto) - 1]) - 1) or vizinho_posicao[1] < 0:  # Verificando se o vizinho está fora do labirinto
+                    continue    # Ignora vizinhos após a parede que estão fora dos limites do labirinto
+                if labirinto[vizinho_posicao[0]][vizinho_posicao[1]] != 0:
+                    continue    # Ignora vizinhos após a parede que também são paredes
+                vizinho_g = no_atual.g + 3  # Atualiza o custo g do vizinho com 3 (pulo sobre a parede)
+            else:
+                vizinho_g = no_atual.g + 1  # Atualiza o custo g do vizinho com 1 (movimento normal)
 
-            neighbor_node = Node(neighbor_position, current_node)
+            no_vizinho = No(vizinho_posicao, no_atual)
 
-            if neighbor_node in closed_list:
-                continue
+            if no_vizinho in lista_fechada:  # Verificando se o vizinho já foi visitado
+                continue    # Ignora vizinhos já explorados
 
-            neighbor_node.g = current_node.g + 1
-            neighbor_node.h = ((neighbor_node.position[0] - end_node.position[0]) ** 2) + ((neighbor_node.position[1] - end_node.position[1]) ** 2)
-            neighbor_node.f = neighbor_node.g + neighbor_node.h
+            no_vizinho.g = vizinho_g
+            no_vizinho.h = ((no_vizinho.posicao[0] - no_final.posicao[0]) ** 2) + ((no_vizinho.posicao[1] - no_final.posicao[1]) ** 2)
+            no_vizinho.f = no_vizinho.g + no_vizinho.h
 
-            if add_to_open(open_list, neighbor_node):
-                heapq.heappush(open_list, neighbor_node)
+            if adiciona_lista_aberta(lista_aberta, no_vizinho):
+                heapq.heappush(lista_aberta, no_vizinho)    # Adiciona o vizinho na lista de nós abertos
 
-    return None
+    return None  # Se não encontrar um caminho, retorna None
 
 
-def add_to_open(open_list, neighbor):
-    for node in open_list:
-        if neighbor == node and neighbor.f >= node.f:
+def adiciona_lista_aberta(lista_aberta, vizinho):   # Função que retorna True se o vizinho deve ser adicionado à lista de nós abertos
+    for no in lista_aberta:
+        if vizinho == no and vizinho.f >= no.f:
             return False
     return True
 
 
-def main():
-    path = astar(maze, start, end)
-    return path
+def main():  # Função principal que roda a função A* e retorna o caminho percorrido
+    caminho = aestrela(labirinto, inicio, fim)
+    return caminho
 
 
 if __name__ == '__main__':
