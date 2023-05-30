@@ -1,7 +1,7 @@
 import pygame
 import main
 
-maze = main.maze
+maze = main.labirinto
 path = main.main()
 
 # Inicializa o Pygame
@@ -73,7 +73,7 @@ while running:
     draw_path(path)
 
     # Desenha o ponto inicial e o objetivo
-    draw_start_end(main.start, main.end)
+    draw_start_end(main.inicio, main.fim)
 
     # Atualiza a tela
     pygame.display.flip()
