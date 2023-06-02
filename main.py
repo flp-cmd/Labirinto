@@ -55,12 +55,12 @@ def aestrela(labirinto, inicio, fim):
         for vizinho in vizinhos:
             vizinho_posicao = (no_atual.posicao[0] + vizinho[0], no_atual.posicao[1] + vizinho[1])
 
-            if vizinho_posicao[0] > (len(labirinto) - 1) or vizinho_posicao[0] < 0 or vizinho_posicao[1] > (len(labirinto[len(labirinto)-1]) - 1) or vizinho_posicao[1] < 0:  # Verificando se o vizinho está fora do labirinto
+            if not dentro_limites(vizinho_posicao):  # Verificando se o vizinho está fora do labirinto
                 continue    # Ignora vizinhos fora dos limites do labirinto
 
             if labirinto[vizinho_posicao[0]][vizinho_posicao[1]] != 0:  # Se o vizinho é uma parede, pula para o próximo vizinho após a parede
                 vizinho_posicao = (vizinho_posicao[0] + vizinho[0], vizinho_posicao[1] + vizinho[1])
-                if vizinho_posicao[0] > (len(labirinto) - 1) or vizinho_posicao[0] < 0 or vizinho_posicao[1] > (len(labirinto[len(labirinto) - 1]) - 1) or vizinho_posicao[1] < 0:  # Verificando se o vizinho está fora do labirinto
+                if not dentro_limites(vizinho_posicao):  # Verificando se o vizinho está fora do labirinto
                     continue    # Ignora vizinhos após a parede que estão fora dos limites do labirinto
                 if labirinto[vizinho_posicao[0]][vizinho_posicao[1]] != 0:
                     continue    # Ignora vizinhos após a parede que também são paredes
@@ -81,6 +81,11 @@ def aestrela(labirinto, inicio, fim):
                 heapq.heappush(lista_aberta, no_vizinho)    # Adiciona o vizinho na lista de nós abertos
 
     return None  # Se não encontrar um caminho, retorna None
+
+
+def dentro_limites(posicao):   # Função que verifica se uma posição está dentro dos limites do labirinto
+    linha, coluna = posicao
+    return 0 <= linha < len(labirinto) and 0 <= coluna < len(labirinto[linha])
 
 
 def adiciona_lista_aberta(lista_aberta, vizinho):   # Função que retorna True se o vizinho deve ser adicionado à lista de nós abertos
