@@ -38,7 +38,6 @@ def draw_maze(maze):
                 pygame.draw.rect(screen, WHITE, (x, y, cell_width, cell_height))
 
 
-
 def draw_path(path):
     for position in path:
         row = position[0]
