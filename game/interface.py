@@ -1,8 +1,10 @@
 import pygame
 import main
+import menu
 
 maze = main.labirinto
 path = main.main()
+menu.run_menu()
 
 # Inicializa o Pygame
 pygame.init()
@@ -25,7 +27,10 @@ pygame.display.set_caption("Labirinto")
 # Define o tamanho das células do labirinto
 cell_width = screen_width // len(maze[0])
 cell_height = screen_height // len(maze)
-
+grass_img = pygame.image.load("../assets/img/grass.jpg")
+grass_img = pygame.transform.scale(grass_img, (100, 40))
+fence_img = pygame.image.load("../assets/img/fence.png")
+fence_img = pygame.transform.scale(fence_img, (100, 40))
 
 def draw_maze(maze):
     for row in range(len(maze)):
@@ -33,10 +38,9 @@ def draw_maze(maze):
             x = col * cell_width
             y = row * cell_height
             if maze[row][col] == 1:
-                color = BLACK
+                pygame.image.load(fence_img)
             else:
-                color = WHITE
-            pygame.draw.rect(screen, color, [x, y, cell_width-1, cell_height-1])
+                pygame.image.load(grass_img)
 
 
 def draw_path(path):

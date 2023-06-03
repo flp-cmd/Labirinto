@@ -1,4 +1,8 @@
 import heapq
+import sys
+from tkinter import Menu
+
+import pygame
 
 labirinto = [[0, 1, 0, 0, 0],
              [0, 1, 0, 1, 0],
@@ -58,6 +62,7 @@ def aestrela(labirinto, inicio, fim):
             if not dentro_limites(vizinho_posicao):  # Verificando se o vizinho está fora do labirinto
                 continue    # Ignora vizinhos fora dos limites do labirinto
 
+            
             if labirinto[vizinho_posicao[0]][vizinho_posicao[1]] != 0:  # Se o vizinho é uma parede, pula para o próximo vizinho após a parede
                 vizinho_posicao = (vizinho_posicao[0] + vizinho[0], vizinho_posicao[1] + vizinho[1])
                 if not dentro_limites(vizinho_posicao):  # Verificando se o vizinho está fora do labirinto
