@@ -15,11 +15,11 @@ class Menu:
         pygame.display.set_caption("Labirinto - Menu")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 40)
-        self.input_x_rect = pygame.Rect(0, 0, 300, 50)
-        self.input_y_rect = pygame.Rect(0, 0, 300, 50)
-        self.start_button = pygame.Rect(0, 0, 300, 70)
+        self.input_x = pygame.Rect(150, 350, 410, 50)
+        self.input_y = pygame.Rect(150, 470, 410, 50)
         self.input_str_x = ""
         self.input_str_y = ""
+        self.button_rect = pygame.Rect(250, 550, 200, 50)
         self.running = True
         self.active_input = "x"
 
@@ -30,43 +30,26 @@ class Menu:
         background_img_scaled = pygame.transform.scale(background_img, screen_size)
         self.screen.blit(background_img_scaled, (0, 0))
 
-        # Centralizando labels e inputs
-        label_x = self.font.render("Tamanho X do tabuleiro:", True, BLACK)
-        label_y = self.font.render("Tamanho Y do tabuleiro:", True, BLACK)
+        # Cria os textos de instruções e desenha na tela
+        x_text = self.font.render("Escolha a dimensão do eixo X:", True, BLACK)
+        self.screen.blit(x_text, (150, 310))
+        y_text = self.font.render("Escolha a dimensão do eixo Y:", True, BLACK)
+        self.screen.blit(y_text, (150, 435))
+
+        # Cria as caixas de entrada e desenha na tela
+        pygame.draw.rect(self.screen, BLACK, self.input_x, 2)
+        pygame.draw.rect(self.screen, BLACK, self.input_y, 2)
+
+        # Cria os textos das caixas de entrada e desenha na tela
         input_x_text = self.font.render(self.input_str_x, True, BLACK)
+        self.screen.blit(input_x_text, (self.input_x.x + 15, self.input_x.y + 12))
         input_y_text = self.font.render(self.input_str_y, True, BLACK)
-        label_x_rect = label_x.get_rect(midright=(self.screen_size[0] // 2, self.screen_size[1] // 2))
-        label_y_rect = label_y.get_rect(midright=(self.screen_size[0] // 2, self.screen_size[1] // 2 - 80))
-        input_x_rect = input_x_text.get_rect(midleft=(self.screen_size[0] // 2 + 40, self.screen_size[1] // 2))
-        input_y_rect = input_y_text.get_rect(midleft=(self.screen_size[0] // 2 + 40, self.screen_size[1] // 2 - 80))
+        self.screen.blit(input_y_text, (self.input_y.x + 15, self.input_y.y + 12))
 
-        # Posicionando o botão
-        self.start_button.center = (self.screen_size[0] // 2, self.screen_size[1] // 2 + 100)
-
-        # Destacar campo de entrada ativo
-        if self.active_input == "x":
-            pygame.draw.rect(self.screen, RED, self.input_x_rect, 2)
-        else:
-            pygame.draw.rect(self.screen, BLACK, self.input_x_rect, 2)
-        if self.active_input == "y":
-            pygame.draw.rect(self.screen, RED, self.input_y_rect, 2)
-        else:
-            pygame.draw.rect(self.screen, BLACK, self.input_y_rect, 2)
-
-        # Desenhar texto
-        self.screen.blit(label_x, label_x_rect)
-        self.screen.blit(label_y, label_y_rect)
-        self.screen.blit(input_x_text, input_x_rect)
-        self.screen.blit(input_y_text, input_y_rect)
-
-        # Atualizar coordenadas iniciais dos retângulos de desenho
-        self.input_x_rect.topleft = input_x_rect.topleft
-        self.input_y_rect.topleft = input_y_rect.topleft
-
-        pygame.draw.rect(self.screen, BLACK, self.start_button)
-        label_start = self.font.render("Iniciar", True, WHITE)
-        label_start_rect = label_start.get_rect(center=self.start_button.center)
-        self.screen.blit(label_start, label_start_rect)
+        # Cria o botão "Iniciar" e desenha na tela
+        pygame.draw.rect(self.screen, BLACK, self.button_rect)
+        button_text = self.font.render("Iniciar", True, WHITE)
+        self.screen.blit(button_text, (self.button_rect.x + 60, self.button_rect.y + 12))
 
         pygame.display.flip()
 
@@ -77,11 +60,11 @@ class Menu:
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     mouse_pos = event.pos
-                    if self.input_x_rect.collidepoint(mouse_pos):
+                    if self.input_x.collidepoint(mouse_pos):
                         self.active_input = "x"
-                    elif self.input_y_rect.collidepoint(mouse_pos):
+                    elif self.input_y.collidepoint(mouse_pos):
                         self.active_input = "y"
-                    elif self.start_button.collidepoint(mouse_pos):  # Check if the mouse clicked on the "Start" button.
+                    elif self.button_rect.collidepoint(mouse_pos):
                         self.start_game()
                     else:
                         self.active_input = None

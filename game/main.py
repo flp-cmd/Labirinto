@@ -6,8 +6,11 @@ import pygame
 
 labirinto = [[0, 0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0], [1, 1, 1, 1, 1, 1, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]]
 
-inicio = (0, 1)
-fim = (7,4)
+inicio = (0, 0)
+fim = (4, 4)
+custos = {}
+lista_aberta = []  # Lista de nós a serem explorados
+lista_fechada = []  # Lista de nós já explorados
 
 
 class No:
@@ -29,10 +32,9 @@ def aestrela(labirinto, inicio, fim):
     no_inicial = No(inicio)
     no_final = No(fim)
 
-    lista_aberta = []   # Lista de nós a serem explorados
-    lista_fechada = []  # Lista de nós já explorados
-
+    no_inicial.f = ((no_inicial.posicao[0] - no_final.posicao[0]) ** 2) + ((no_inicial.posicao[1] - no_final.posicao[1]) ** 2)
     heapq.heappush(lista_aberta, no_inicial)    # Adiciona o nó inicial na lista de nós abertos
+    custos[no_inicial.posicao] = no_inicial.f
 
     while lista_aberta:
         no_atual = heapq.heappop(lista_aberta)  # Seleciona o nó de menor custo f da lista de nós abertos
@@ -52,7 +54,6 @@ def aestrela(labirinto, inicio, fim):
             if not dentro_limites(vizinho_posicao):  # Verificando se o vizinho está fora do labirinto
                 continue    # Ignora vizinhos fora dos limites do labirinto
 
-            
             if labirinto[vizinho_posicao[0]][vizinho_posicao[1]] != 0:  # Se o vizinho é uma parede, pula para o próximo vizinho após a parede
                 vizinho_posicao = (vizinho_posicao[0] + vizinho[0], vizinho_posicao[1] + vizinho[1])
                 if not dentro_limites(vizinho_posicao):  # Verificando se o vizinho está fora do labirinto
@@ -74,6 +75,7 @@ def aestrela(labirinto, inicio, fim):
 
             if adiciona_lista_aberta(lista_aberta, no_vizinho):
                 heapq.heappush(lista_aberta, no_vizinho)    # Adiciona o vizinho na lista de nós abertos
+                custos[no_vizinho.posicao] = no_vizinho.f
 
     return None  # Se não encontrar um caminho, retorna None
 
