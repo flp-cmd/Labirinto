@@ -1,6 +1,7 @@
 import heapq
 import sys
 from tkinter import Menu
+import math
 
 import pygame
 
@@ -49,6 +50,7 @@ def aestrela(labirinto, inicio, fim):
     while lista_aberta:
         no_atual = heapq.heappop(lista_aberta)  # Seleciona o nó de menor custo f da lista de nós abertos
         lista_fechada.append(no_atual)  # Adiciona o nó atual na lista de nós explorados
+        print(f"Nó visitado: {traduz_posicao(no_atual.posicao)} de custo: {custos[no_atual.posicao]}")
 
         if no_atual == no_final:    # Se chegou ao nó final, constrói e retorna o caminho percorrido
             caminho = []
@@ -86,8 +88,13 @@ def aestrela(labirinto, inicio, fim):
             if adiciona_lista_aberta(lista_aberta, no_vizinho):
                 heapq.heappush(lista_aberta, no_vizinho)    # Adiciona o vizinho na lista de nós abertos
                 custos[no_vizinho.posicao] = no_vizinho.f
+                print(f"Nó aberto: {traduz_posicao(no_vizinho.posicao)} de custo: {custos[no_vizinho.posicao]}")
 
     return None  # Se não encontrar um caminho, retorna None
+
+
+def traduz_posicao(posicao):
+    return (posicao[0] * len(labirinto[0])) + (posicao[1] + 1)
 
 
 def dentro_limites(posicao):   # Função que verifica se uma posição está dentro dos limites do labirinto
@@ -102,9 +109,14 @@ def adiciona_lista_aberta(lista_aberta, vizinho):   # Função que retorna True 
     return True
 
 
+def printa_arvore():
+    for no in lista_fechada:
+        print(f"Nó: {no.posicao} de custo: {custos[no.posicao]}")
+
+
 def main():  # Função principal que roda a função A* e retorna o caminho percorrido
     caminho = aestrela(labirinto, inicio, fim)
-    return caminho
+    print(len(labirinto))
 
 
 if __name__ == '__main__':
