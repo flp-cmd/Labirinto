@@ -1,8 +1,7 @@
 import pygame
 import sys
 import constants as c
-
-# Cores
+from Game import Game# Cores
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -82,6 +81,8 @@ class Menu:
                         self.active_input = "x"
                     elif self.input_y_rect.collidepoint(mouse_pos):
                         self.active_input = "y"
+                    elif self.start_button.collidepoint(mouse_pos):  # Check if the mouse clicked on the "Start" button.
+                        self.start_game()
                     else:
                         self.active_input = None
             elif event.type == pygame.KEYDOWN:
@@ -105,6 +106,9 @@ class Menu:
     def start_game(self):
         if self.input_str_x and self.input_str_y:
             print("Start game with board size: {} x {}".format(self.input_str_x, self.input_str_y))
+            game = Game(int(self.input_str_x), int(self.input_str_y))
+            game.run_game()
+
 
     def run_menu(self):
         while self.running:

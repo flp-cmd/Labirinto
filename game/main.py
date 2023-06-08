@@ -4,20 +4,10 @@ from tkinter import Menu
 
 import pygame
 
-labirinto = [[0, 1, 0, 0, 0],
-             [0, 1, 0, 1, 0],
-             [0, 1, 0, 1, 0],
-             [0, 0, 0, 1, 0],
-             [0, 0, 0, 1, 0],
-             [0, 1, 0, 1, 0],
-             [0, 0, 0, 0, 0],
-             [0, 0, 0, 1, 0],
-             [0, 0, 0, 1, 0],
-             [0, 1, 0, 1, 0],
-             [0, 0, 0, 0, 0]]
+labirinto = [[0, 0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0], [1, 1, 1, 1, 1, 1, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]]
 
-inicio = (0, 0)
-fim = (4, 4)
+inicio = (0, 1)
+fim = (7,4)
 
 
 class No:
@@ -102,8 +92,10 @@ def adiciona_lista_aberta(lista_aberta, vizinho):   # Função que retorna True 
 
 def main():  # Função principal que roda a função A* e retorna o caminho percorrido
     caminho = aestrela(labirinto, inicio, fim)
+    print(caminho)
     return caminho
 
 
 if __name__ == '__main__':
-    main()
+    
+    print(main())
