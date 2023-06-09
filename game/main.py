@@ -67,9 +67,10 @@ def aestrela(labirinto, inicio, fim, heuristica_admissivel=True):
 
             no_vizinho.g = vizinho_g
             if heuristica_admissivel:
-                no_vizinho.h = math.sqrt(((no_vizinho.posicao[0] - no_final.posicao[0]) ** 2) + ((no_vizinho.posicao[1] - no_final.posicao[1]) ** 2))
+                no_vizinho.h = abs((no_vizinho.posicao[0] - no_final.posicao[0])) + abs((no_vizinho.posicao[1] - no_final.posicao[1]))  # Distância de Manhattan
             else:
-                no_vizinho.h = ((no_vizinho.posicao[0] - no_final.posicao[0]) ** 2) + ((no_vizinho.posicao[1] - no_final.posicao[1]) ** 2)
+                no_vizinho.h = math.sqrt(((no_vizinho.posicao[0] - no_final.posicao[0]) ** 2) + ((no_vizinho.posicao[1] - no_final.posicao[1]) ** 2))  # Distãncia Euclidiana
+
             no_vizinho.f = no_vizinho.g + no_vizinho.h
 
             if adiciona_lista_aberta(lista_aberta, no_vizinho):
