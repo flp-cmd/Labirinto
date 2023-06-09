@@ -44,11 +44,15 @@ class Game:
             4: self.pegada_img
         }
         # Buttons
+        self.admissivel = True
+
         self.buttons = {
             "OBSTACULO": pygame.Rect(100, 50, 200, 50),
             "CAVALO": pygame.Rect(350, 50, 200, 50),
             "FENO": pygame.Rect(600, 50, 200, 50),
-            "INICIAR": pygame.Rect(850, 50, 200, 50)    
+            "INICIAR": pygame.Rect(970, 790, 200, 50),
+            "ADMISSIVEL": pygame.Rect(1050, 250, 200, 50),
+            "NÃO ADMISSIVEL": pygame.Rect(1000, 320, 250, 50) 
         }
         self.button_values = {
             "OBSTACULO": 1,
@@ -91,11 +95,33 @@ class Game:
 
 
     def draw_buttons(self):
-        for button_name, button_rect in self.buttons.items():
-            pygame.draw.rect(self.screen, RED if self.active_button == button_name else BLACK, button_rect)
-            label = self.font.render(button_name, True, WHITE)
-            label_rect = label.get_rect(center=button_rect.center)
-            self.screen.blit(label, label_rect)
+            pygame.draw.rect(self.screen, WHITE, (50, 40, 800, 80), 2)  # Retângulo em volta dos botões do mapa
+            pygame.draw.rect(self.screen, WHITE, (970, 230, 300, 170), 2)  # Retângulo em volta dos botões de heurística
+
+            # Adicionando texto
+            label_map = self.font.render("Coloque no mapa:", True, WHITE)
+            self.screen.blit(label_map, (50, 10))
+
+            label_heuristic = self.font.render("Tipo heuristica", True, WHITE)
+            self.screen.blit(label_heuristic, (970, 170))
+            
+            for button_name, button_rect in self.buttons.items():
+                color = RED
+                if (button_name == "ADMISSIVEL" and self.admissivel) or (button_name == "NÃO ADMISSIVEL" and not self.admissivel):
+                    color = GREEN
+                elif self.active_button == button_name:
+                    color = RED
+                else:
+                    if button_name == "INICIAR":
+                        color = BLUE
+                    else:
+                        color = BLACK
+                pygame.draw.rect(self.screen, color, button_rect)
+                label = self.font.render(button_name, True, WHITE)
+                label_rect = label.get_rect(center=button_rect.center)
+                self.screen.blit(label, label_rect)
+
+
 
     def draw(self):
         self.screen.fill(BLACK)
@@ -111,7 +137,12 @@ class Game:
                 if event.button == 1:
                     for button_name, button_rect in self.buttons.items():
                         if button_rect.collidepoint(event.pos):
-                            self.active_button = button_name
+                            if button_name == "ADMISSIVEL":
+                                self.admissivel = True
+                            elif button_name == "NÃO ADMISSIVEL":
+                                self.admissivel = False
+                            else:
+                                self.active_button = button_name
                             if self.active_button == "INICIAR":
                                 inicio = self.positions["CAVALO"]
                                 fim = self.positions["FENO"]
@@ -122,7 +153,7 @@ class Game:
                                 self.board[inicio[1]][inicio[0]] = 0
                                 print(labirinto, inicio, fim, "O QUE VEM ANTES")
                                 print(inicio[1], inicio[0], fim[1], fim[0])
-                                self.path = main.aestrela(labirinto, (inicio[1], inicio[0]), (fim[1], fim[0]))
+                                self.path = main.aestrela(labirinto, (inicio[1], inicio[0]), (fim[1], fim[0]), self.admissivel)
                                 print(self.path)
                                 self.board[fim[1]][fim[0]] = 3
 
