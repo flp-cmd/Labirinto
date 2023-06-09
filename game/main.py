@@ -5,7 +5,14 @@ import math
 
 import pygame
 
-labirinto = [[0, 0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0], [1, 1, 1, 1, 1, 1, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]]
+labirinto = [[0, 0, 0, 0, 0, 1, 0, 0],
+             [0, 0, 0, 0, 0, 1, 0, 0],
+             [0, 0, 0, 0, 0, 1, 0, 0],
+             [1, 1, 1, 1, 1, 1, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0]]
 
 inicio = (0, 0)
 fim = (4, 4)
@@ -29,7 +36,7 @@ class No:
         return self.f < other.f
 
 
-def aestrela(labirinto, inicio, fim):
+def aestrela(labirinto, inicio, fim, heuristica_admissivel):
     no_inicial = No(inicio)
     no_final = No(fim)
 
@@ -72,7 +79,10 @@ def aestrela(labirinto, inicio, fim):
                 continue    # Ignora vizinhos já explorados
 
             no_vizinho.g = vizinho_g
-            no_vizinho.h = ((no_vizinho.posicao[0] - no_final.posicao[0]) ** 2) + ((no_vizinho.posicao[1] - no_final.posicao[1]) ** 2)
+            if heuristica_admissivel:
+                no_vizinho.h = math.sqrt(((no_vizinho.posicao[0] - no_final.posicao[0]) ** 2) + ((no_vizinho.posicao[1] - no_final.posicao[1]) ** 2))
+            else:
+                no_vizinho.h = ((no_vizinho.posicao[0] - no_final.posicao[0]) ** 2) + ((no_vizinho.posicao[1] - no_final.posicao[1]) ** 2)
             no_vizinho.f = no_vizinho.g + no_vizinho.h
 
             if adiciona_lista_aberta(lista_aberta, no_vizinho):
@@ -110,5 +120,4 @@ def main():  # Função principal que roda a função A* e retorna o caminho per
 
 
 if __name__ == '__main__':
-    
-    print(main())
+    main()
