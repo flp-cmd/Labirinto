@@ -1,5 +1,5 @@
 import pygame
-import main
+from aestrela_jogo import *
 from constants import *
 import sys
 
@@ -151,9 +151,10 @@ class Game:
                                 
                                 self.board[fim[1]][fim[0]] = 0
                                 self.board[inicio[1]][inicio[0]] = 0
-                                print(labirinto, inicio, fim, "O QUE VEM ANTES")
-                                print(inicio[1], inicio[0], fim[1], fim[0])
-                                self.path = main.aestrela(labirinto, (inicio[1], inicio[0]), (fim[1], fim[0]), self.admissivel)
+                                inicio_corrigido = (inicio[1], inicio[0])
+                                fim_corrigido = (fim[1], fim[0])
+                                print('labirinto:', labirinto, 'inicio:', inicio_corrigido, 'fim:', fim_corrigido, 'admissivel:', self.admissivel)
+                                self.path = aestrela(labirinto, inicio_corrigido,fim_corrigido, self.admissivel)
                                 print(self.path)
                                 self.board[fim[1]][fim[0]] = 3
 
