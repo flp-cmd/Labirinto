@@ -1,5 +1,5 @@
 import pygame
-from aestrela_jogo import *
+from main import *
 from constants import *
 import sys
 
