@@ -1,113 +1,126 @@
 import heapq
-import sys
 import math
-import pygame
 
 class No:
-    
-    def __init__(self, posicao, pai=None):
-        self.posicao = posicao
-        self.pai = pai
+    def __init__(self, position, parent=None):
+        self.position = position
+        self.parent = parent
         self.g = 0
         self.h = 0
         self.f = 0
 
+    # Comparator method to check if node has visited
     def __eq__(self, other):
-        return self.posicao == other.posicao
+        return self.position == other.position
 
+    # Comparator method to sort open nodes by f
     def __lt__(self, other):
         return self.f < other.f
 
 
-def aestrela(labirinto, inicio, fim, heuristica_admissivel=True):
-    custos = {}
-    lista_aberta = []  
-    lista_fechada = [] 
+def aestrela(maze, start_position, end_position, admissible_heuristic=True):
+    open_list = []  
+    closed_list = [] 
+    node_costs = {}
 
-    no_inicial = No(inicio)
-    no_final = No(fim)
+    initial_node = No(start_position)
+    end_node = No(end_position)
 
-    no_inicial.f = ((no_inicial.posicao[0] - no_final.posicao[0]) ** 2) + ((no_inicial.posicao[1] - no_final.posicao[1]) ** 2)
-    heapq.heappush(lista_aberta, no_inicial)   
-    custos[no_inicial.posicao] = no_inicial.f
+    if admissible_heuristic:
+        # Manhattan distance
+        initial_node.f = abs((initial_node.position[0] - end_node.position[0])) + abs((initial_node.position[1] - end_node.position[1]))  
+    else:
+        # Euclidean distance
+        initial_node.f = ((initial_node.position[0] - end_node.position[0]) ** 2) + ((initial_node.position[1] - end_node.position[1]) ** 2)
 
-    while lista_aberta:
-        no_atual = heapq.heappop(lista_aberta)  
-        lista_fechada.append(no_atual)  
-        print(f"Nó visitado: {traduz_posicao(no_atual.posicao, labirinto)} de custo: {custos[no_atual.posicao]}")
+    # Priority list sorted by _lt_ method
+    heapq.heappush(open_list, initial_node)   
+    node_costs[initial_node.position] = initial_node.f
 
-        if no_atual == no_final:    
-            caminho = []
-            while no_atual != no_inicial:
-                caminho.append(no_atual.posicao)
-                no_atual = no_atual.pai
-            return caminho[::-1]
+    while open_list:
+        current_node = heapq.heappop(open_list)  
+        closed_list.append(current_node)  
+        print(f"O nó visitado foi o {node_position_to_number(current_node.position, maze)} com custo {node_costs[current_node.position]}")
 
-        vizinhos = [(0, -1), (0, 1), (-1, 0), (1, 0)]  
-        for vizinho in vizinhos:
-            vizinho_posicao = (no_atual.posicao[0] + vizinho[0], no_atual.posicao[1] + vizinho[1])
+        if current_node == end_node:    
+            path = []
+            while current_node != initial_node:
+                path.append(current_node.position)
+                current_node = current_node.parent
+            # Returns the inverted path
+            return path[::-1]
 
-            if not dentro_limites(vizinho_posicao, labirinto):  
+        neighbors = [(0, -1), (0, 1), (-1, 0), (1, 0)]  
+        for neighbor in neighbors:
+            neighbor_position = (current_node.position[0] + neighbor[0], current_node.position[1] + neighbor[1])
+
+            if not in_maze_limits(neighbor_position, maze):  
                 continue    
 
-            if labirinto[vizinho_posicao[0]][vizinho_posicao[1]] != 0:  
-                vizinho_posicao = (vizinho_posicao[0] + vizinho[0], vizinho_posicao[1] + vizinho[1])
-                if not dentro_limites(vizinho_posicao, labirinto):  
+            # Checks if found a wall
+            if maze[neighbor_position[0]][neighbor_position[1]] != 0:  
+                neighbor_position = (neighbor_position[0] + neighbor[0], neighbor_position[1] + neighbor[1])
+                if not in_maze_limits(neighbor_position, maze):  
                     continue    
-                if labirinto[vizinho_posicao[0]][vizinho_posicao[1]] != 0:
+                # Checks if found a wall after a wall
+                if maze[neighbor_position[0]][neighbor_position[1]] != 0:
                     continue    
-                vizinho_g = no_atual.g + 3  
+                neighbor_g = current_node.g + 3  
             else:
-                vizinho_g = no_atual.g + 1  
+                neighbor_g = current_node.g + 1  
 
-            no_vizinho = No(vizinho_posicao, no_atual)
+            # Current node is the parent of new node
+            neighboring_node = No(neighbor_position, current_node)
 
-            if no_vizinho in lista_fechada:  
+            # Check if the neighboring node is already in the open list with an equal or higher cost
+            if any(neighboring_node == no and neighboring_node.f >= no.f for no in open_list):  
                 continue    
 
-            no_vizinho.g = vizinho_g
-            if heuristica_admissivel:
-                no_vizinho.h = abs((no_vizinho.posicao[0] - no_final.posicao[0])) + abs((no_vizinho.posicao[1] - no_final.posicao[1]))  # Distância de Manhattan
+            neighboring_node.g = neighbor_g
+            if admissible_heuristic:
+                # Manhattan distance
+                neighboring_node.h = abs((neighboring_node.position[0] - end_node.position[0])) + abs((neighboring_node.position[1] - end_node.position[1]))  
             else:
-                no_vizinho.h = math.sqrt(((no_vizinho.posicao[0] - no_final.posicao[0]) ** 2) + ((no_vizinho.posicao[1] - no_final.posicao[1]) ** 2))  # Distãncia Euclidiana
+                # Euclidean distance
+                neighboring_node.h = math.sqrt(((neighboring_node.position[0] - end_node.position[0]) ** 2) + ((neighboring_node.position[1] - end_node.position[1]) ** 2)) 
 
-            no_vizinho.f = no_vizinho.g + no_vizinho.h
+            neighboring_node.f = neighboring_node.g + neighboring_node.h
 
-            if adiciona_lista_aberta(lista_aberta, no_vizinho):
-                heapq.heappush(lista_aberta, no_vizinho)    
-                custos[no_vizinho.posicao] = no_vizinho.f
-                print(f"Nó aberto: {traduz_posicao(no_vizinho.posicao, labirinto)} de custo: {custos[no_vizinho.posicao]}")
+            if add_node_to_open_list(open_list, neighboring_node):
+                heapq.heappush(open_list, neighboring_node)    
+                node_costs[neighboring_node.position] = neighboring_node.f
+                print(f"Nó aberto: {node_position_to_number(neighboring_node.position, maze)} de custo: {node_costs[neighboring_node.position]}")
 
     return None
 
-
-def traduz_posicao(posicao, labirinto):
-    return (posicao[0] * len(labirinto[0])) + (posicao[1] + 1)
-
-
-def dentro_limites(posicao, labirinto):   
-    linha, coluna = posicao
-    return 0 <= linha < len(labirinto) and 0 <= coluna < len(labirinto[linha])
+def node_position_to_number(position, maze):
+    return (position[0] * len(maze[0])) + (position[1] + 1)
 
 
-def adiciona_lista_aberta(lista_aberta, vizinho):  
-    for no in lista_aberta:
-        if vizinho == no and vizinho.f >= no.f:
+def in_maze_limits(position, maze):   
+    linha, coluna = position
+    return 0 <= linha < len(maze) and 0 <= coluna < len(maze[linha])
+
+
+def add_node_to_open_list(open_list, neighbor):  
+    for no in open_list:
+        if neighbor == no and neighbor.f >= no.f:
             return False
     return True
 
 
-def printa_arvore(lista_fechada, custos):
-    for no in lista_fechada:
-        print(f"Nó: {no.posicao} de custo: {custos[no.posicao]}")
+def show_tree(closed_list, node_costs):
+    for no in closed_list:
+        print(f"Nó: {no.position} de custo: {node_costs[no.position]}")
 
 
-def main(labirinto, inicio, fim):  
-    caminho = aestrela(labirinto, inicio, fim)
-    return caminho
+def main(maze, start_position, end_position):  
+    path = aestrela(maze, start_position, end_position)
+    return path
 
 if __name__ == '__main__':
-    labirinto = []  # Defina seu labirinto aqui.
-    inicio = (0, 0)  # Defina o ponto de início aqui.
-    fim = (5, 5)  # Defina o ponto final aqui.
-    print(main(labirinto, inicio, fim))
+    maze = []  
+    start_position = (0, 0)  
+    end_position = (5, 5) 
+    path = main(maze, start_position, end_position)
+    print(path)
