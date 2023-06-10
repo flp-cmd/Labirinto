@@ -47,6 +47,7 @@ def aestrela(maze, start_position, end_position, admissible_heuristic=True):
             while current_node != initial_node:
                 path.append(current_node.position)
                 current_node = current_node.parent
+            path.append(initial_node.position)  # Adicionar o nó inicial ao caminho
             # Returns the inverted path
             return path[::-1]
 
@@ -72,9 +73,9 @@ def aestrela(maze, start_position, end_position, admissible_heuristic=True):
             # Current node is the parent of new node
             neighboring_node = No(neighbor_position, current_node)
 
-            # Check if the neighboring node is already in the open list with an equal or higher cost
-            if any(neighboring_node == no and neighboring_node.f >= no.f for no in open_list):  
-                continue    
+            # Skip the neighboring node if it is already in the open list or closed list
+            if any(neighboring_node == no and neighboring_node.f >= no.f for no in open_list) or any(neighboring_node == no for no in closed_list):
+                continue
 
             neighboring_node.g = neighbor_g
             if admissible_heuristic:
@@ -89,7 +90,7 @@ def aestrela(maze, start_position, end_position, admissible_heuristic=True):
             if add_node_to_open_list(open_list, neighboring_node):
                 heapq.heappush(open_list, neighboring_node)    
                 node_costs[neighboring_node.position] = neighboring_node.f
-                print(f"Nó aberto: {node_position_to_number(neighboring_node.position, maze)} de custo: {node_costs[neighboring_node.position]}")
+                print(f"Nó aberto: {node_position_to_number(neighboring_node.position, maze)} Custo: {node_costs[neighboring_node.position]}")
 
     return None
 
@@ -117,10 +118,3 @@ def show_tree(closed_list, node_costs):
 def main(maze, start_position, end_position):  
     path = aestrela(maze, start_position, end_position)
     return path
-
-if __name__ == '__main__':
-    maze = []  
-    start_position = (0, 0)  
-    end_position = (5, 5) 
-    path = main(maze, start_position, end_position)
-    print(path)

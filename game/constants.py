@@ -4,6 +4,7 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 920
 
 # Cores padrão
+
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
