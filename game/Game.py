@@ -2,7 +2,7 @@ import pygame
 import constants as c
 from main import *
 import sys
-
+import json
 
 
 class Game:
@@ -153,6 +153,7 @@ class Game:
                                 print("Caminho:", self.path)
                                 tree = build_tree_from_a_star(labirinto, closed_list)
                                 show_tree(tree)
+                                self.post_tree(tree)
                                 self.board[end_position[1]][end_position[0]] = 3
                                 self.path_index = 0
                                 self.custo = closed_list[-1].f
@@ -189,6 +190,14 @@ class Game:
                         self.board[last_pos[0]][last_pos[1]] = 4  # Place a pegada in the last position
 
                     self.path_index += 1  # Move to the next step in the path
+
+
+    def post_tree(self, tree):
+        json_path = "assets/json/treeData.json"
+        
+        with open(json_path, 'w') as file:
+            json.dump(tree, file)
+
 
     def run_game(self):
         while self.running:
