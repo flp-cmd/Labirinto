@@ -42,6 +42,7 @@ class TreeNode:
 def a_star(maze, start_position, end_position, admissible_heuristic=True):
     open_list = []
     closed_list = []
+    iterations_lists = {"open_list": [], "closed_list": []}
     node_costs = {}
 
     initial_node = Node(start_position)
@@ -56,11 +57,13 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
     heapq.heappush(open_list, initial_node)
     node_costs[initial_node.position] = initial_node.f
 
-    neighbors = [(0, -1), (0, 1), (-1, 0), (1, 0)]  # Movements: up, down, left, right
+    neighbors = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
+    iterations_lists["open_list"].append([node_position_to_number(initial_node.position, maze)])
     while open_list:
         current_node = heapq.heappop(open_list)
         closed_list.append(current_node)
+        iterations_lists["closed_list"].append([node_position_to_number(node.position, maze) for node in closed_list])
 
         if current_node == end_node:
             path = []
@@ -69,6 +72,7 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
                 current_node = current_node.parent
             path.append(initial_node.position)
             path.reverse()
+            show_iterations_lists(iterations_lists)
             return path, open_list, closed_list
 
         for neighbor in neighbors:
@@ -100,9 +104,25 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
             if add_node_to_open_list(open_list, neighboring_node):
                 heapq.heappush(open_list, neighboring_node)
                 node_costs[neighboring_node.position] = neighboring_node.f
+                
+        iterations_lists["open_list"].append([node_position_to_number(node.position, maze) for node in open_list])
 
     return None, open_list, closed_list
 
+def show_iterations_lists(lists):
+   print("\n")
+   for node_number_position in lists["open_list"]:
+        numbers = ""
+        for number in node_number_position:
+            numbers += str(number) + " "
+        print("Abertos:", numbers + "\n")
+
+   print("\n")
+   for node_number_position in lists["closed_list"]:
+        numbers = ""
+        for number in node_number_position:
+            numbers += str(number) + " "
+        print("Fechados:", numbers + "\n")
 
 def node_position_to_number(position, maze):
     return position[0] * len(maze[0]) + position[1] + 1
@@ -117,7 +137,7 @@ def add_node_to_open_list(open_list, neighbor):
             return False
     return True
 
-def build_tree_from_a_star(maze, closed_list):
+def build_tree_from_a_star(maze, open_list, closed_list):
     tree_nodes = {}
     root_node = None
 
@@ -135,6 +155,15 @@ def build_tree_from_a_star(maze, closed_list):
             parent_tree_node = tree_nodes[parent_node_name]
             parent_tree_node.add_child(tree_node)
 
+    for node in open_list:
+        if node.parent is not None:
+            node_name = node_position_to_number(node.position, maze)
+            parent_node_name = node_position_to_number(node.parent.position, maze)
+            tree_node = TreeNode(node_name, parent=parent_node_name, evaluation=node.f)
+            tree_nodes[node_name] = tree_node
+            parent_tree_node = tree_nodes[parent_node_name]
+            parent_tree_node.add_child(tree_node)
+
     if root_node is not None:
         return {
             "treeNodes": root_node.to_dict(),
@@ -145,32 +174,32 @@ def build_tree_from_a_star(maze, closed_list):
 
 def main(maze, start_position, end_position,admissible_heuristic):
     path, open_list, closed_list = a_star(maze, start_position, end_position,admissible_heuristic)
-    print("Caminho:", path)
-    print(closed_list[-1])
-    print("Lista de abertos:", open_list)
-    print("Lista de fechados:", closed_list)
+    #print("Caminho:", path)
+    #print(closed_list[-1])
+    #print("Lista de abertos:", open_list)
+    #print("Lista de fechados:", closed_list)
 
-    tree = build_tree_from_a_star(maze, closed_list)
+    tree = build_tree_from_a_star(maze, open_list, closed_list)
     show_tree(tree)
 
     return path
 
 def show_tree(tree):
-    pass
     if tree is not None:
-        print("Árvore:")
-        print(tree)
+        #print("Árvore:")
+        #print(tree)
+        carro = 1
 
 maze = [
     [0, 1, 0, 0, 0],
     [0, 1, 1, 0, 0],
     [0, 1, 0, 1, 0],
     [0, 1, 1, 1, 0],
-    [0, 1, 0, 0, 0]
+    [0, 1, 0, 0, 0],
 ]
 
 start_position = (0, 0)
 end_position = (4, 4)
 
 main(maze, start_position, end_position, admissible_heuristic=True)
-main(maze, start_position, end_position, admissible_heuristic=False)
+#main(maze, start_position, end_position, admissible_heuristic=False)

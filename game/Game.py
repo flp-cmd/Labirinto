@@ -151,7 +151,7 @@ class Game:
                                 # print("Lista de abertos:", open_list)
                                 # print("Lista de fechados:", closed_list)
                                 print("Caminho:", self.path)
-                                tree = build_tree_from_a_star(labirinto, closed_list)
+                                tree = build_tree_from_a_star(labirinto, open_list, closed_list)
                                 show_tree(tree)
                                 self.post_tree(tree)
                                 self.board[end_position[1]][end_position[0]] = 3

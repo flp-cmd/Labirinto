@@ -16,7 +16,6 @@ async function buildChart() {
     timestamp = data.timestamp;
     const chart = echarts.init(document.getElementById('chart'));
 
-    // Opções de configuração da árvore
     const option = {
         tooltip: {
             trigger: 'item',
@@ -31,7 +30,7 @@ async function buildChart() {
             {
                 type: 'tree',
                 data: [convertData(treeData)],
-                top: '5%',
+                top: '20%',
                 bottom: '5%',
                 left: '10%',
                 right: '10%',
@@ -49,7 +48,7 @@ async function buildChart() {
                     color: '#333',
                     formatter: function (params) {
                         const value = params.data.value;
-                        return `${value[0]}\n${value[1] || "--"}\n${value[2].toFixed(2)}`;
+                        return `${value[0]} | ${value[1] || "--"} | ${value[2].toFixed(2)}`;
                     }
                 },
                 leaves: {
@@ -67,7 +66,8 @@ async function buildChart() {
                 },
                 lineStyle: {
                     color: '#ccc',
-                    width: 1
+                    width: 1,
+                    curveness: 0
                 }
             }
         ]
@@ -76,7 +76,6 @@ async function buildChart() {
     chart.setOption(option);
 }
 
-// Função para converter a estrutura de dados para o formato esperado pelo ECharts
 function convertData(data) {
     const result = {
         name: data.name,
