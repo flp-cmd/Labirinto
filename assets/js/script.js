@@ -49,7 +49,7 @@ async function buildChart() {
                     color: '#333',
                     formatter: function (params) {
                         const value = params.data.value;
-                        return `${value[0]}\n${value[1] || "--"}\n${value[2]}`;
+                        return `${value[0]}\n${value[1] || "--"}\n${value[2].toFixed(2)}`;
                     }
                 },
                 leaves: {
