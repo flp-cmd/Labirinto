@@ -48,12 +48,15 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
     end_node = Node(end_position)
 
     if admissible_heuristic:
-        initial_node.f = abs(initial_node.position[0] - end_node.position[0]) + abs(initial_node.position[1] - end_node.position[1])
+        initial_node.h = abs(initial_node.position[0] - end_node.position[0]) + abs(initial_node.position[1] - end_node.position[1])
     else:
-        initial_node.f = math.sqrt((initial_node.position[0] - end_node.position[0]) ** 2 + (initial_node.position[1] - end_node.position[1]) ** 2)
+        initial_node.h = math.sqrt((initial_node.position[0] - end_node.position[0]) ** 2 + (initial_node.position[1] - end_node.position[1]) ** 2)
 
+    initial_node.f = initial_node.h
     heapq.heappush(open_list, initial_node)
     node_costs[initial_node.position] = initial_node.f
+
+    neighbors = [(0, -1), (0, 1), (-1, 0), (1, 0)]  # Movements: up, down, left, right
 
     while open_list:
         current_node = heapq.heappop(open_list)
@@ -68,7 +71,6 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
             path.reverse()
             return path, open_list, closed_list
 
-        neighbors = [(0, -1), (0, 1), (-1, 0), (1, 0)]
         for neighbor in neighbors:
             neighbor_position = (current_node.position[0] + neighbor[0], current_node.position[1] + neighbor[1])
 
@@ -77,11 +79,9 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
 
             if maze[neighbor_position[0]][neighbor_position[1]] != 0:
                 neighbor_position = (neighbor_position[0] + neighbor[0], neighbor_position[1] + neighbor[1])
-                if not in_maze_limits(neighbor_position, maze):
+                if not in_maze_limits(neighbor_position, maze) or maze[neighbor_position[0]][neighbor_position[1]] != 0:
                     continue
-                if maze[neighbor_position[0]][neighbor_position[1]] != 0:
-                    continue
-                neighbor_g = current_node.g + 3
+                neighbor_g = current_node.g + 3  # Additional cost for obstacle
             else:
                 neighbor_g = current_node.g + 1
 
@@ -94,8 +94,7 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
             if admissible_heuristic:
                 neighboring_node.h = abs(neighboring_node.position[0] - end_node.position[0]) + abs(neighboring_node.position[1] - end_node.position[1])
             else:
-                neighboring_node.h = math.sqrt((neighboring_node.position[0] - end_node.position[0]) ** 2 + (neighboring_node.position[1] - end_node.position[1]) ** 2)
-
+                neighboring_node.h = (abs(neighboring_node.position[0] - end_node.position[0]) + abs(neighboring_node.position[1] - end_node.position[1]))*3
             neighboring_node.f = neighboring_node.g + neighboring_node.h
 
             if add_node_to_open_list(open_list, neighboring_node):
@@ -103,6 +102,7 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
                 node_costs[neighboring_node.position] = neighboring_node.f
 
     return None, open_list, closed_list
+
 
 def node_position_to_number(position, maze):
     return position[0] * len(maze[0]) + position[1] + 1
@@ -143,9 +143,10 @@ def build_tree_from_a_star(maze, closed_list):
 
     return None
 
-def main(maze, start_position, end_position):
-    path, open_list, closed_list = a_star(maze, start_position, end_position)
+def main(maze, start_position, end_position,admissible_heuristic):
+    path, open_list, closed_list = a_star(maze, start_position, end_position,admissible_heuristic)
     print("Caminho:", path)
+    print(closed_list[-1])
     print("Lista de abertos:", open_list)
     print("Lista de fechados:", closed_list)
 
@@ -155,19 +156,21 @@ def main(maze, start_position, end_position):
     return path
 
 def show_tree(tree):
+    pass
     if tree is not None:
         print("Árvore:")
         print(tree)
 
 maze = [
     [0, 1, 0, 0, 0],
-    [0, 1, 0, 0, 0],
-    [0, 1, 0, 0, 0],
-    [0, 1, 0, 0, 0],
+    [0, 1, 1, 0, 0],
+    [0, 1, 0, 1, 0],
+    [0, 1, 1, 1, 0],
     [0, 1, 0, 0, 0]
 ]
 
 start_position = (0, 0)
 end_position = (4, 4)
 
-main(maze, start_position, end_position)
+main(maze, start_position, end_position, admissible_heuristic=True)
+main(maze, start_position, end_position, admissible_heuristic=False)

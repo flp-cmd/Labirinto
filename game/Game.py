@@ -29,6 +29,7 @@ class Game:
         self.move_timer = 0
         self.path = []
         self.path_index = 0
+        self.custo = 0
         self.images = {
             2: self.horse_img,  
             1: self.fence_img,  
@@ -40,9 +41,10 @@ class Game:
             "OBSTACULO": pygame.Rect(100, 50, 200, 50),
             "CAVALO": pygame.Rect(350, 50, 200, 50),
             "FENO": pygame.Rect(600, 50, 200, 50),
-            "INICIAR": pygame.Rect(970, 790, 200, 50),
+            "INICIAR": pygame.Rect(750, 790, 200, 50),
             "ADMISSIVEL": pygame.Rect(1050, 250, 200, 50),
-            "NÃO ADMISSIVEL": pygame.Rect(1000, 320, 250, 50) 
+            "NÃO ADMISSIVEL": pygame.Rect(1000, 320, 250, 50),
+            "RESETAR": pygame.Rect(970, 790, 200, 50)
         }
         self.button_values = {
             "OBSTACULO": 1,
@@ -76,6 +78,10 @@ class Game:
             footprint_img = pygame.transform.scale(self.footprint_img, (self.cell_size_x, self.cell_size_y))
             self.screen.blit(footprint_img, cell_rect)
 
+    def reset_board(self):
+        """Reset the board back to the initial state."""
+        new_game = Game(self.board_size[0], self.board_size[1])
+        new_game.run_game()
 
 
     def draw_buttons(self):
@@ -87,6 +93,9 @@ class Game:
 
             label_heuristic = self.font.render("Tipo heuristica", True, c.WHITE)
             self.screen.blit(label_heuristic, (970, 170))
+            if self.custo is not None:
+                cost_text = self.font.render("Custo final: " + str(self.custo), True, c.WHITE)
+                self.screen.blit(cost_text, (970, 500))
             
             for button_name, button_rect in self.buttons.items():
                 color = c.RED
@@ -124,6 +133,8 @@ class Game:
                                 self.admissible = True
                             elif button_name == "NÃO ADMISSIVEL":
                                 self.admissible = False
+                            elif button_name == "RESETAR":
+                                self.reset_board()
                             else:
                                 self.active_button = button_name
                             if self.active_button == "INICIAR":
@@ -134,6 +145,7 @@ class Game:
                                 self.board[start_position[1]][start_position[0]] = 0
                                 correct_start_position = (start_position[1], start_position[0])
                                 corrent_end_position = (end_position[1], end_position[0])
+                                print(self.admissible)
                                 self.path, open_list, closed_list = a_star(labirinto, correct_start_position,corrent_end_position, self.admissible)
                                 # print('labirinto:', labirinto, 'inicio:', correct_start_position, 'fim:', corrent_end_position, 'admissivel:', self.admissible)
                                 # print("Lista de abertos:", open_list)
@@ -143,6 +155,7 @@ class Game:
                                 show_tree(tree)
                                 self.board[end_position[1]][end_position[0]] = 3
                                 self.path_index = 0
+                                self.custo = closed_list[-1].f
                             return
                     cell_x = (event.pos[0] - self.margin_x) // self.cell_size_x
                     cell_y = (event.pos[1] - self.margin_y) // self.cell_size_y
