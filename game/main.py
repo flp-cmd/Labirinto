@@ -1,7 +1,8 @@
 import heapq
 import math
+import datetime
 
-class No:
+class Node:
     def __init__(self, position, parent=None):
         self.position = position
         self.parent = parent
@@ -9,112 +10,164 @@ class No:
         self.h = 0
         self.f = 0
 
-    # Comparator method to check if node has visited
     def __eq__(self, other):
         return self.position == other.position
 
-    # Comparator method to sort open nodes by f
     def __lt__(self, other):
         return self.f < other.f
+    
+    def __repr__(self):
+        return f"Node(position={self.position}, g={self.g}, h={self.h}, f={self.f})"
 
+class TreeNode:
+    def __init__(self, name, parent=None, evaluation=0):
+        self.name = name
+        self.parent = parent
+        self.evaluation = evaluation
+        self.children = []
 
-def aestrela(maze, start_position, end_position, admissible_heuristic=True):
-    open_list = []  
-    closed_list = [] 
+    def add_child(self, child_node):
+        self.children.append(child_node)
+
+    def to_dict(self):
+        children = [child.to_dict() for child in self.children]
+
+        return {
+            "name": self.name,
+            "parent": self.parent,
+            "evaluation": self.evaluation,
+            "children": children
+        }
+
+def a_star(maze, start_position, end_position, admissible_heuristic=True):
+    open_list = []
+    closed_list = []
     node_costs = {}
 
-    initial_node = No(start_position)
-    end_node = No(end_position)
+    initial_node = Node(start_position)
+    end_node = Node(end_position)
 
     if admissible_heuristic:
-        # Manhattan distance
-        initial_node.f = abs((initial_node.position[0] - end_node.position[0])) + abs((initial_node.position[1] - end_node.position[1]))  
+        initial_node.f = abs(initial_node.position[0] - end_node.position[0]) + abs(initial_node.position[1] - end_node.position[1])
     else:
-        # Euclidean distance
-        initial_node.f = ((initial_node.position[0] - end_node.position[0]) ** 2) + ((initial_node.position[1] - end_node.position[1]) ** 2)
+        initial_node.f = math.sqrt((initial_node.position[0] - end_node.position[0]) ** 2 + (initial_node.position[1] - end_node.position[1]) ** 2)
 
-    # Priority list sorted by _lt_ method
-    heapq.heappush(open_list, initial_node)   
+    heapq.heappush(open_list, initial_node)
     node_costs[initial_node.position] = initial_node.f
 
     while open_list:
-        current_node = heapq.heappop(open_list)  
-        closed_list.append(current_node)  
-        print(f"O nó visitado foi o {node_position_to_number(current_node.position, maze)} com custo {node_costs[current_node.position]}")
+        current_node = heapq.heappop(open_list)
+        closed_list.append(current_node)
 
-        if current_node == end_node:    
+        if current_node == end_node:
             path = []
             while current_node != initial_node:
                 path.append(current_node.position)
                 current_node = current_node.parent
-            path.append(initial_node.position)  # Adicionar o nó inicial ao caminho
-            # Returns the inverted path
-            return path[::-1]
+            path.append(initial_node.position)
+            path.reverse()
+            return path, open_list, closed_list
 
-        neighbors = [(0, -1), (0, 1), (-1, 0), (1, 0)]  
+        neighbors = [(0, -1), (0, 1), (-1, 0), (1, 0)]
         for neighbor in neighbors:
             neighbor_position = (current_node.position[0] + neighbor[0], current_node.position[1] + neighbor[1])
 
-            if not in_maze_limits(neighbor_position, maze):  
-                continue    
+            if not in_maze_limits(neighbor_position, maze):
+                continue
 
-            # Checks if found a wall
-            if maze[neighbor_position[0]][neighbor_position[1]] != 0:  
+            if maze[neighbor_position[0]][neighbor_position[1]] != 0:
                 neighbor_position = (neighbor_position[0] + neighbor[0], neighbor_position[1] + neighbor[1])
-                if not in_maze_limits(neighbor_position, maze):  
-                    continue    
-                # Checks if found a wall after a wall
+                if not in_maze_limits(neighbor_position, maze):
+                    continue
                 if maze[neighbor_position[0]][neighbor_position[1]] != 0:
-                    continue    
-                neighbor_g = current_node.g + 3  
+                    continue
+                neighbor_g = current_node.g + 3
             else:
-                neighbor_g = current_node.g + 1  
+                neighbor_g = current_node.g + 1
 
-            # Current node is the parent of new node
-            neighboring_node = No(neighbor_position, current_node)
+            neighboring_node = Node(neighbor_position, current_node)
 
-            # Skip the neighboring node if it is already in the open list or closed list
-            if any(neighboring_node == no and neighboring_node.f >= no.f for no in open_list) or any(neighboring_node == no for no in closed_list):
+            if any(neighboring_node == node and neighboring_node.f >= node.f for node in open_list) or any(neighboring_node == node for node in closed_list):
                 continue
 
             neighboring_node.g = neighbor_g
             if admissible_heuristic:
-                # Manhattan distance
-                neighboring_node.h = abs((neighboring_node.position[0] - end_node.position[0])) + abs((neighboring_node.position[1] - end_node.position[1]))  
+                neighboring_node.h = abs(neighboring_node.position[0] - end_node.position[0]) + abs(neighboring_node.position[1] - end_node.position[1])
             else:
-                # Euclidean distance
-                neighboring_node.h = math.sqrt(((neighboring_node.position[0] - end_node.position[0]) ** 2) + ((neighboring_node.position[1] - end_node.position[1]) ** 2)) 
+                neighboring_node.h = math.sqrt((neighboring_node.position[0] - end_node.position[0]) ** 2 + (neighboring_node.position[1] - end_node.position[1]) ** 2)
 
             neighboring_node.f = neighboring_node.g + neighboring_node.h
 
             if add_node_to_open_list(open_list, neighboring_node):
-                heapq.heappush(open_list, neighboring_node)    
+                heapq.heappush(open_list, neighboring_node)
                 node_costs[neighboring_node.position] = neighboring_node.f
-                print(f"Nó aberto: {node_position_to_number(neighboring_node.position, maze)} Custo: {node_costs[neighboring_node.position]}")
 
-    return None
+    return None, open_list, closed_list
 
 def node_position_to_number(position, maze):
-    return (position[0] * len(maze[0])) + (position[1] + 1)
+    return position[0] * len(maze[0]) + position[1] + 1
 
+def in_maze_limits(position, maze):
+    row, col = position
+    return 0 <= row < len(maze) and 0 <= col < len(maze[row])
 
-def in_maze_limits(position, maze):   
-    linha, coluna = position
-    return 0 <= linha < len(maze) and 0 <= coluna < len(maze[linha])
-
-
-def add_node_to_open_list(open_list, neighbor):  
-    for no in open_list:
-        if neighbor == no and neighbor.f >= no.f:
+def add_node_to_open_list(open_list, neighbor):
+    for node in open_list:
+        if neighbor == node and neighbor.f >= node.f:
             return False
     return True
 
+def build_tree_from_a_star(maze, closed_list):
+    tree_nodes = {}
+    root_node = None
 
-def show_tree(closed_list, node_costs):
-    for no in closed_list:
-        print(f"Nó: {no.position} de custo: {node_costs[no.position]}")
+    for node in closed_list:
+        node_name = node_position_to_number(node.position, maze)
+        parent_node = node.parent
 
+        if parent_node is None:
+            root_node = TreeNode(node_name, evaluation=node.f)
+            tree_nodes[node_name] = root_node
+        else:
+            parent_node_name = node_position_to_number(parent_node.position, maze)
+            tree_node = TreeNode(node_name, parent=parent_node_name, evaluation=node.f)
+            tree_nodes[node_name] = tree_node
+            parent_tree_node = tree_nodes[parent_node_name]
+            parent_tree_node.add_child(tree_node)
 
-def main(maze, start_position, end_position):  
-    path = aestrela(maze, start_position, end_position)
+    if root_node is not None:
+        return {
+            "treeNodes": root_node.to_dict(),
+            "timestamp": datetime.datetime.now().timestamp()
+        }
+
+    return None
+
+def main(maze, start_position, end_position):
+    path, open_list, closed_list = a_star(maze, start_position, end_position)
+    print("Caminho:", path)
+    print("Lista de abertos:", open_list)
+    print("Lista de fechados:", closed_list)
+
+    tree = build_tree_from_a_star(maze, closed_list)
+    show_tree(tree)
+
     return path
+
+def show_tree(tree):
+    if tree is not None:
+        print("Árvore:")
+        print(tree)
+
+maze = [
+    [0, 1, 0, 0, 0],
+    [0, 1, 0, 0, 0],
+    [0, 1, 0, 0, 0],
+    [0, 1, 0, 0, 0],
+    [0, 1, 0, 0, 0]
+]
+
+start_position = (0, 0)
+end_position = (4, 4)
+
+main(maze, start_position, end_position)
