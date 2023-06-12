@@ -3,3 +3,8 @@
     height: 600px;
     margin: 0 auto;
 }
+
+table {
+    min-width: 350px;
+    max-width: 100vw;
+}
