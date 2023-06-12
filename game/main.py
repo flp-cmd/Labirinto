@@ -43,19 +43,17 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
     open_list = []
     closed_list = []
     iterations_lists = {"open_list": [], "closed_list": []}
-    node_costs = {}
-
+    
     initial_node = Node(start_position)
     end_node = Node(end_position)
 
     if admissible_heuristic:
         initial_node.h = abs(initial_node.position[0] - end_node.position[0]) + abs(initial_node.position[1] - end_node.position[1])
     else:
-        initial_node.h = math.sqrt((initial_node.position[0] - end_node.position[0]) ** 2 + (initial_node.position[1] - end_node.position[1]) ** 2)
+        initial_node.h = (abs(initial_node.position[0] - end_node.position[0]) + abs(initial_node.position[1] - end_node.position[1]))*3
 
     initial_node.f = initial_node.h
     heapq.heappush(open_list, initial_node)
-    node_costs[initial_node.position] = initial_node.f
 
     neighbors = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
@@ -103,7 +101,6 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
 
             if add_node_to_open_list(open_list, neighboring_node):
                 heapq.heappush(open_list, neighboring_node)
-                node_costs[neighboring_node.position] = neighboring_node.f
                 
         iterations_lists["open_list"].append([node_position_to_number(node.position, maze) for node in open_list])
 
