@@ -72,8 +72,8 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
                 current_node = current_node.parent
             path.append(initial_node.position)
             path.reverse()
-            show_iterations_lists(iterations_lists)
-            return path, open_list, closed_list
+            #show_iterations_lists(iterations_lists)
+            return path, open_list, closed_list, iterations_lists
 
         for neighbor in neighbors:
             neighbor_position = (current_node.position[0] + neighbor[0], current_node.position[1] + neighbor[1])
@@ -107,7 +107,7 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
                 
         iterations_lists["open_list"].append([node_position_to_number(node.position, maze) for node in open_list])
 
-    return None, open_list, closed_list
+    return None, open_list, closed_list, iterations_lists
 
 def show_iterations_lists(lists):
    print("\n")
@@ -173,22 +173,14 @@ def build_tree_from_a_star(maze, open_list, closed_list):
     return None
 
 def main(maze, start_position, end_position,admissible_heuristic):
-    path, open_list, closed_list = a_star(maze, start_position, end_position,admissible_heuristic)
+    path, open_list, closed_list, iterations_lists = a_star(maze, start_position, end_position,admissible_heuristic)
     #print("Caminho:", path)
-    #print(closed_list[-1])
     #print("Lista de abertos:", open_list)
     #print("Lista de fechados:", closed_list)
 
-    tree = build_tree_from_a_star(maze, open_list, closed_list)
-    show_tree(tree)
-
+    treeData = build_tree_from_a_star(maze, open_list, closed_list)
+    treeData['interations_lists'] = iterations_lists
     return path
-
-def show_tree(tree):
-    if tree is not None:
-        #print("Árvore:")
-        #print(tree)
-        carro = 1
 
 maze = [
     [0, 1, 0, 0, 0],
@@ -202,4 +194,4 @@ start_position = (0, 0)
 end_position = (4, 4)
 
 main(maze, start_position, end_position, admissible_heuristic=True)
-#main(maze, start_position, end_position, admissible_heuristic=False)
+main(maze, start_position, end_position, admissible_heuristic=False)
