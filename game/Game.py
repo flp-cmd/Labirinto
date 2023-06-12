@@ -153,6 +153,9 @@ class Game:
                                 print("Caminho:", self.path)
                                 treeData = build_tree_from_a_star(labirinto, open_list, closed_list)
                                 treeData['interations_lists'] = iterations_lists
+                                path_positions = []
+                                #path_positions.append([node_position_to_number(path_position.position, maze) for path_position in self.path])
+                                #treeData["path"] = path_positions
                                 self.post_tree(treeData)
                                 self.board[end_position[1]][end_position[0]] = 3
                                 self.path_index = 0

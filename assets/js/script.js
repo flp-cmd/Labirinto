@@ -14,8 +14,7 @@ async function buildChart() {
     
     if(!treeData || data.timestamp === timestamp) return;
 
-    [openL, closedL] = getOpenAndClosedList(data.interations_lists);
-    console.log([openL, closedL])
+    [openL, closedL] = [data.interations_lists["open_list"], data.interations_lists["closed_list"]];
     buildOpenAndClosedList(openL, closedL);
 
     timestamp = data.timestamp;
@@ -109,39 +108,6 @@ function buildOpenAndClosedList(openL, closedL) {
     }
 }
 
-function getOpenAndClosedList(lists) {
-    const openL = lists["open_list"];
-    const closedL = lists["closed_list"];
-    const newOpenL = [];
-    const newClosedL = [];
-
-    newOpenL.push(openL[1]);
-    newClosedL.push(closedL[0]);
-
-    let close = true;
-    let open = false;
-
-    for(let i = 1; i < openL.length; i++) {
-        if(close) {
-            const currOpen = openL[i];
-            const currClosed = closedL[i];
-            const newOpenItem = removeDuplicates(currOpen, currClosed);
-            newOpenL.push(newOpenItem);
-            newClosedL.push(currClosed);
-            open = true;
-            close = false;
-        } else if(open) {
-            const currOpen = openL[i];
-            const currClosed = closedL[i - 1];
-            newOpenL.push(currOpen);
-            newClosedL.push(currClosed);
-            open = false;
-            close = true;
-        }
-    }
-
-    return [newOpenL, newClosedL]
-}
 
 function removeDuplicates(arr1, arr2) {
   const result = arr1.filter((value) => !arr2.includes(value));
@@ -176,21 +142,3 @@ function getMaxDepth(data) {
 
     return maxDepth + 1;
 }
-
-// Nós Abertos       Nós Fechados
-// 6, 3              1
-// 3                 1, 6
-// 11, 8, 3          1, 6
-// 8, 3              1, 6, 11
-// 12, 16, 8, 3      1, 6, 11
-// 16, 8, 3          1, 6, 11, 12
-// 22, 8, 3          1, 6, 11, 12
-// 22, 3             1, 6, 11, 12, 8
-// 10, 22, 3         1, 6, 11, 12, 8
-// 10, 22            1, 6, 11, 12, 8, 3
-// 4, 10, 22         1, 6, 11, 12, 8, 3
-// 10, 22            1, 6, 11, 12, 8, 3, 4
-// 5, 10, 22         1, 6, 11, 12, 8, 3, 4
-// 10, 22            1, 6, 11, 12, 8, 3, 4, 5
-// 10, 22            1, 6, 11, 12, 8, 3, 4, 5
-// 10
