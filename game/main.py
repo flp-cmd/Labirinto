@@ -55,9 +55,10 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
     initial_node.f = initial_node.h
     heapq.heappush(open_list, initial_node)
 
-    neighbors = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+    neighbours = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
     iterations_lists["open_list"].append([node_position_to_number(initial_node.position, maze)])
+    
     while open_list:
         current_node = heapq.heappop(open_list)
         closed_list.append(current_node)
@@ -70,56 +71,40 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
                 current_node = current_node.parent
             path.append(initial_node.position)
             path.reverse()
-            #show_iterations_lists(iterations_lists)
             return path, open_list, closed_list, iterations_lists
 
-        for neighbor in neighbors:
-            neighbor_position = (current_node.position[0] + neighbor[0], current_node.position[1] + neighbor[1])
+        for neighbour in neighbours:
+            neighbour_position = (current_node.position[0] + neighbour[0], current_node.position[1] + neighbour[1])
 
-            if not in_maze_limits(neighbor_position, maze):
+            if not in_maze_limits(neighbour_position, maze):
                 continue
 
-            if maze[neighbor_position[0]][neighbor_position[1]] != 0:
-                neighbor_position = (neighbor_position[0] + neighbor[0], neighbor_position[1] + neighbor[1])
-                if not in_maze_limits(neighbor_position, maze) or maze[neighbor_position[0]][neighbor_position[1]] != 0:
+            if maze[neighbour_position[0]][neighbour_position[1]] != 0:
+                neighbour_position = (neighbour_position[0] + neighbour[0], neighbour_position[1] + neighbour[1])
+                if not in_maze_limits(neighbour_position, maze) or maze[neighbour_position[0]][neighbour_position[1]] != 0:
                     continue
-                neighbor_g = current_node.g + 3  # Additional cost for obstacle
+                neighbour_g = current_node.g + 3  # Additional cost for obstacle
             else:
-                neighbor_g = current_node.g + 1
+                neighbour_g = current_node.g + 1
 
-            neighboring_node = Node(neighbor_position, current_node)
+            neighbour_node = Node(neighbour_position, current_node)
 
-            if any(neighboring_node == node and neighboring_node.f >= node.f for node in open_list) or any(neighboring_node == node for node in closed_list):
+            if any(neighbour_node == node and neighbour_node.f >= node.f for node in open_list) or any(neighbour_node == node for node in closed_list):
                 continue
 
-            neighboring_node.g = neighbor_g
+            neighbour_node.g = neighbour_g
             if admissible_heuristic:
-                neighboring_node.h = abs(neighboring_node.position[0] - end_node.position[0]) + abs(neighboring_node.position[1] - end_node.position[1])
+                neighbour_node.h = abs(neighbour_node.position[0] - end_node.position[0]) + abs(neighbour_node.position[1] - end_node.position[1])
             else:
-                neighboring_node.h = (abs(neighboring_node.position[0] - end_node.position[0]) + abs(neighboring_node.position[1] - end_node.position[1]))*3
-            neighboring_node.f = neighboring_node.g + neighboring_node.h
+                neighbour_node.h = (abs(neighbour_node.position[0] - end_node.position[0]) + abs(neighbour_node.position[1] - end_node.position[1]))*3
+            neighbour_node.f = neighbour_node.g + neighbour_node.h
 
-            if add_node_to_open_list(open_list, neighboring_node):
-                heapq.heappush(open_list, neighboring_node)
+            if add_node_to_open_list(open_list, neighbour_node):
+                heapq.heappush(open_list, neighbour_node)
                 
         iterations_lists["open_list"].append([node_position_to_number(node.position, maze) for node in open_list])
 
     return None, open_list, closed_list, iterations_lists
-
-def show_iterations_lists(lists):
-   print("\n")
-   for node_number_position in lists["open_list"]:
-        numbers = ""
-        for number in node_number_position:
-            numbers += str(number) + " "
-        print("Abertos:", numbers + "\n")
-
-   print("\n")
-   for node_number_position in lists["closed_list"]:
-        numbers = ""
-        for number in node_number_position:
-            numbers += str(number) + " "
-        print("Fechados:", numbers + "\n")
 
 def node_position_to_number(position, maze):
     return position[0] * len(maze[0]) + position[1] + 1
@@ -128,9 +113,9 @@ def in_maze_limits(position, maze):
     row, col = position
     return 0 <= row < len(maze) and 0 <= col < len(maze[row])
 
-def add_node_to_open_list(open_list, neighbor):
+def add_node_to_open_list(open_list, neighbour):
     for node in open_list:
-        if neighbor == node and neighbor.f >= node.f:
+        if neighbour == node and neighbour.f >= node.f:
             return False
     return True
 

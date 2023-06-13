@@ -145,12 +145,10 @@ class Game:
                                 self.board[start_position[1]][start_position[0]] = 0
                                 correct_start_position = (start_position[1], start_position[0])
                                 corrent_end_position = (end_position[1], end_position[0])
-                                print(self.admissible)
                                 self.path, open_list, closed_list, iterations_lists = a_star(labirinto, correct_start_position,corrent_end_position, self.admissible)
                                 # print('labirinto:', labirinto, 'inicio:', correct_start_position, 'fim:', corrent_end_position, 'admissivel:', self.admissible)
                                 # print("Lista de abertos:", open_list)
                                 # print("Lista de fechados:", closed_list)
-                                print("Caminho:", self.path)
                                 treeData = build_tree_from_a_star(labirinto, open_list, closed_list)
                                 treeData['interations_lists'] = iterations_lists
                                 path_positions = []
