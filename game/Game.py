@@ -151,7 +151,6 @@ class Game:
                                 # print("Lista de fechados:", closed_list)
                                 treeData = build_tree_from_a_star(labirinto, open_list, closed_list)
                                 treeData['interations_lists'] = iterations_lists
-                                path_positions = []
                                 self.post_tree(treeData)
                                 self.board[end_position[1]][end_position[0]] = 3
                                 self.path_index = 0
