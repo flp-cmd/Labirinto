@@ -152,8 +152,6 @@ class Game:
                                 treeData = build_tree_from_a_star(labirinto, open_list, closed_list)
                                 treeData['interations_lists'] = iterations_lists
                                 path_positions = []
-                                #path_positions.append([node_position_to_number(path_position.position, maze) for path_position in self.path])
-                                #treeData["path"] = path_positions
                                 self.post_tree(treeData)
                                 self.board[end_position[1]][end_position[0]] = 3
                                 self.path_index = 0
@@ -191,8 +189,7 @@ class Game:
                         self.board[last_pos[0]][last_pos[1]] = 4  # Place a pegada in the last position
 
                     self.path_index += 1  # Move to the next step in the path
-
-
+    
     def post_tree(self, tree):
         json_path = "assets/json/treeData.json"
         
@@ -210,4 +207,3 @@ class Game:
 
         pygame.quit()
         sys.exit()
-

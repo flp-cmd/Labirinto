@@ -13,6 +13,7 @@ class Node:
     def __eq__(self, other):
         return self.position == other.position
 
+    # Method to heapeq order the open list by f
     def __lt__(self, other):
         return self.f < other.f
     
@@ -42,35 +43,41 @@ class TreeNode:
 def a_star(maze, start_position, end_position, admissible_heuristic=True):
     open_list = []
     closed_list = []
+    # Create an empty dictionary to store the iterations' open list and closed list.
     iterations_lists = {"open_list": [], "closed_list": []}
     
     initial_node = Node(start_position)
     end_node = Node(end_position)
 
     if admissible_heuristic:
+        # Manhattan distance
         initial_node.h = abs(initial_node.position[0] - end_node.position[0]) + abs(initial_node.position[1] - end_node.position[1])
     else:
+        # Manhattan distance multiplied by 3
         initial_node.h = (abs(initial_node.position[0] - end_node.position[0]) + abs(initial_node.position[1] - end_node.position[1]))*3
 
     initial_node.f = initial_node.h
+    # Adds the initial node to the open list in order ordered by the value of f
     heapq.heappush(open_list, initial_node)
 
     neighbours = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
+    # Registers the initial node in the open list of the iterations lists.
     iterations_lists["open_list"].append([node_position_to_number(initial_node.position, maze)])
     
     while open_list:
         current_node = heapq.heappop(open_list)
         closed_list.append(current_node)
+        # Registers all nodes of the closed list in closed list of the iterations lists
         iterations_lists["closed_list"].append([node_position_to_number(node.position, maze) for node in closed_list])
 
         if current_node == end_node:
             path = []
             while current_node != initial_node:
-                path.append(current_node.position)
+                path.append(current_node.position) # Add nodes from end to beginning
                 current_node = current_node.parent
             path.append(initial_node.position)
-            path.reverse()
+            path.reverse() # Path in order from start to end
             return path, open_list, closed_list, iterations_lists
 
         for neighbour in neighbours:
@@ -79,8 +86,10 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
             if not in_maze_limits(neighbour_position, maze):
                 continue
 
+            # Checks if found a obstacle
             if maze[neighbour_position[0]][neighbour_position[1]] != 0:
                 neighbour_position = (neighbour_position[0] + neighbour[0], neighbour_position[1] + neighbour[1])
+                # Checks if you are at the limits or if one obstacle after another has been encountered
                 if not in_maze_limits(neighbour_position, maze) or maze[neighbour_position[0]][neighbour_position[1]] != 0:
                     continue
                 neighbour_g = current_node.g + 3  # Additional cost for obstacle
@@ -89,6 +98,7 @@ def a_star(maze, start_position, end_position, admissible_heuristic=True):
 
             neighbour_node = Node(neighbour_position, current_node)
 
+            # Skip the current iteration if the neighbor node is already present in either the open or closed list.
             if any(neighbour_node == node and neighbour_node.f >= node.f for node in open_list) or any(neighbour_node == node for node in closed_list):
                 continue
 
